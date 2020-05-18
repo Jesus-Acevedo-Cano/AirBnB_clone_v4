@@ -1,22 +1,24 @@
 $(document).ready(function () {
-  const amenities = [];
+  const amenities = {};
+  // Task 2
   $('input[type=checkbox]').click(function () { // Select all checkbox elements
     if (this.checked) {
-      amenities.push($(this).attr('data-name'));
-      // Other way: amenities.push($(this).data('name'))
+      amenities[$(this).attr('data-id')] = $(this).attr('data-name');
+      // Other way: amenities[$(this).data('name')]
     } else {
-      const index = amenities.indexOf($(this).attr('data-name'));
-      amenities.splice(index, 1); // Delete element by index
+      delete amenities[$(this).attr('data-id')];
     }
     // Now, let's add list elements to h4 within amenities css class
-    if (amenities.length > 0) {
-      $('.amenities > h4').text(amenities.join(', '));
+    if (Object.values(amenities).length > 0) {
+      $('.amenities > h4').text(Object.values(amenities).join(', '));
     } else {
       /* If there is just one element, and I des-select it,
       it'll stay in h4, so... we need to replace it with &nbsp */
       $('.amenities > h4').html('&nbsp');
     }
   });
+
+  // Task 3
   $.get('http://0.0.0.0:5001/api/v1/status/', function (data, status) {
     if (data.status === 'OK') {
       $('DIV#api_status').addClass('available');
@@ -24,6 +26,8 @@ $(document).ready(function () {
       $('DIV#api_status').removeClass('available');
     }
   });
+
+  // Task 4
   $.ajax({
     type: 'POST',
     url: 'http://0.0.0.0:5001/api/v1/places_search',
@@ -43,7 +47,9 @@ $(document).ready(function () {
     }
   });
 
+  // Task 5
   $('button').click(function () {
+    $('article').remove();
     $.ajax({
       type: 'POST',
       url: 'http://0.0.0.0:5001/api/v1/places_search',
@@ -51,7 +57,6 @@ $(document).ready(function () {
       dataType: 'json',
       data: JSON.stringify({ amenities: Object.keys(amenities) }),
       success: function (data) {
-        $('article').remove();
         for (const places of data) {
           $('section.places').append('<article><h2>' +
             places.name + '</h2><div class="price_by_night"><p>$' +
